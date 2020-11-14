@@ -2,8 +2,8 @@ import {
 	runInAction,
 	autorun,
 	computed,
-	decorate,
-	IObservableArray
+	IObservableArray,
+	makeObservable
 } from "mobx";
 import { firestore } from "firebase";
 import Collection from "./Collection";
@@ -106,6 +106,9 @@ class AggregateCollection<
 		source: CollectionSource,
 		options: IAggregateCollectionOptions<T, Y>
 	) {
+		this.addObserverRef = this.addObserverRef.bind(this);
+		this.releaseObserverRef = this.releaseObserverRef.bind(this);
+		makeObservable(this, { docs: computed });
 		this.collectionSource = source;
 		if (options.createDocument) {
 			this.createDocument = options.createDocument;
@@ -339,7 +342,5 @@ class AggregateCollection<
 		}
 	}
 }
-
-decorate(AggregateCollection, { docs: computed });
 
 export default AggregateCollection;

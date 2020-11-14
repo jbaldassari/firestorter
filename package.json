@@ -50,7 +50,7 @@
 		"lodash.isequal": "^4.5.0"
 	},
 	"peerDependencies": {
-		"mobx": ">= 4"
+		"mobx": ">= 6"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.6.4",
@@ -70,7 +70,7 @@
 		"jest": "^24.9.0",
 		"jsdoc-babel": "^0.5.0",
 		"jsdoc-to-markdown": "^5.0.2",
-		"mobx": "^5.14.0",
+		"mobx": "^6.0.1",
 		"prettier": "^1.18.2",
 		"rollup": "^1.24.0",
 		"rollup-plugin-filesize": "^6.1.1",
@@ -80,7 +80,7 @@
 		"ts-jest": "^24.1.0",
 		"tslint": "^5.20.0",
 		"tslint-config-prettier": "^1.18.0",
-		"typescript": "^3.6.4",
+		"typescript": "^3.9.4",
 		"uglify-es": "^3.3.9"
 	}
 }

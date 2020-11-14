@@ -1,4 +1,4 @@
-import { _isComputingDerivation, getAtom, observable } from "mobx";
+import { observable, onBecomeObserved, onBecomeUnobserved } from "mobx";
 import { IEnhancedObservableDelegate } from "./Types";
 
 /**
@@ -17,27 +17,8 @@ export function enhancedObservable(
 
 	// Hook into the MobX observable and track
 	// Whether any Component is observing this observable.
-	const atom: any = getAtom(o);
-	const onBecomeUnobserved = atom.onBecomeUnobserved;
-	const reportObserved = atom.reportObserved;
-	let isObserved = false;
-	atom.isPendingUnobservation = false;
-	atom.onBecomeUnobserved = () => {
-		const res = onBecomeUnobserved.apply(atom, arguments);
-		if (isObserved) {
-			isObserved = false;
-			delegate.releaseObserverRef();
-		}
-		return res;
-	};
-	atom.reportObserved = () => {
-		const res = reportObserved.apply(atom, arguments);
-		if (!isObserved && _isComputingDerivation()) {
-			isObserved = true;
-			delegate.addObserverRef();
-		}
-		return res;
-	};
+	onBecomeObserved(o, undefined, delegate.addObserverRef);
+	onBecomeUnobserved(o, undefined, delegate.releaseObserverRef);
 
 	return o;
 }

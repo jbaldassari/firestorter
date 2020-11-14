@@ -1,9 +1,9 @@
 import {
 	runInAction,
 	observable,
-	decorate,
 	computed,
-	IObservableValue
+	IObservableValue,
+	makeObservable
 } from "mobx";
 import { CollectionSource, ICollectionDocument } from "./Types";
 import { IGeoRegion, getGeohashesForRegion } from "./GeoHash";
@@ -107,6 +107,7 @@ class GeoQuery<T extends ICollectionDocument> extends AggregateCollection<
 			...otherOptions
 		});
 		this.regionObservable = regionObservable;
+		makeObservable(this, { geohashes: computed });
 	}
 
 	/**
@@ -168,7 +169,5 @@ class GeoQuery<T extends ICollectionDocument> extends AggregateCollection<
 		return queries ? queries.map(query => query.geohash) : [];
 	}
 }
-
-decorate(GeoQuery, { geohashes: computed });
 
 export default GeoQuery;

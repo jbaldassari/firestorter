@@ -85,6 +85,8 @@ class Document<T extends object = object>
 			debugName,
 			context
 		} = options;
+		this.addObserverRef = this.addObserverRef.bind(this);
+		this.releaseObserverRef = this.releaseObserverRef.bind(this);
 		this.debugInstanceName = debugName;
 		this.sourceInput = source;
 		this.ctx = context;

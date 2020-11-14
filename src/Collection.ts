@@ -145,6 +145,8 @@ class Collection<T extends ICollectionDocument = Document>
 			initialLocalSnapshotDebounceTime = 1000,
 			context
 		} = options;
+		this.addObserverRef = this.addObserverRef.bind(this);
+		this.releaseObserverRef = this.releaseObserverRef.bind(this);
 		this.isVerbose = debug || false;
 		this.debugInstanceName = debugName;
 		this.isMinimizingUpdates = minimizeUpdates;
