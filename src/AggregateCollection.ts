@@ -5,7 +5,8 @@ import {
 	IObservableArray,
 	makeObservable
 } from "mobx";
-import { firestore } from "firebase";
+import firebase from "firebase";
+import "firebase/firestore";
 import Collection from "./Collection";
 import Document from "./Document";
 import {
@@ -25,8 +26,8 @@ export type AggregateCollectionFilterBy<T> = (doc: T) => boolean;
 export interface IAggregateCollectionQuery {
 	key: string;
 	query: (
-		ref: firestore.CollectionReference
-	) => firestore.Query | null | undefined;
+		ref: firebase.firestore.CollectionReference
+	) => firebase.firestore.Query | null | undefined;
 }
 export type AggregateCollectionQueries<Y> = Y[] | null;
 export type AggregateCollectionQueriesFn<

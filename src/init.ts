@@ -1,12 +1,16 @@
-import { app, firestore } from "firebase";
-import * as firebaseT from "firebase";
+import firebase from "firebase";
+import "firebase/app";
+import "firebase/firestore";
+
+type App = firebase.app.App;
+type Firestore = firebase.firestore.Firestore;
 
 export const ModuleName = "firestorter";
 
 export interface IContext {
-	readonly firebase: typeof firebaseT;
-	readonly app: app.App;
-	readonly firestore: firestore.Firestore;
+	readonly firebase: typeof firebase;
+	readonly app: App;
+	readonly firestore: Firestore;
 }
 
 export interface IHasContext {
@@ -40,9 +44,9 @@ let globalContext: IContext;
  * ...
  */
 function initFirestorter(config: {
-	firebase: typeof firebaseT;
-	app?: string | app.App;
-	firestore?: firestore.Firestore;
+	firebase: typeof firebase;
+	app?: string | App;
+	firestore?: Firestore;
 }): void {
 	if (globalContext) {
 		throw new Error(
@@ -89,9 +93,9 @@ function initFirestorter(config: {
  * })
  */
 export function makeFirestorterContext(config: {
-	firebase: typeof firebaseT;
-	app?: string | app.App;
-	firestore?: firestore.Firestore;
+	firebase: typeof firebase;
+	app?: string | App;
+	firestore?: Firestore;
 }): IContext {
 	// Set firebase object
 	if (!config.firebase) {
@@ -169,15 +173,15 @@ function contextWithProperty(key: keyof IContext, obj?: IHasContext) {
 	}
 }
 
-function getFirebase(obj?: IHasContext): typeof firebaseT {
+function getFirebase(obj?: IHasContext): typeof firebase {
 	return contextWithProperty("firebase", obj).firebase;
 }
 
-function getFirebaseApp(obj?: IHasContext): app.App {
+function getFirebaseApp(obj?: IHasContext): App {
 	return contextWithProperty("app", obj).app;
 }
 
-function getFirestore(obj?: IHasContext): firestore.Firestore {
+function getFirestore(obj?: IHasContext): Firestore {
 	return contextWithProperty("firestore", obj).firestore;
 }
 

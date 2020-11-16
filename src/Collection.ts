@@ -8,7 +8,8 @@ import {
 import { enhancedObservable } from "./enhancedObservable";
 import { getFirestore, IContext, IHasContext } from "./init";
 import { verifyMode } from "./Utils";
-import { firestore } from "firebase";
+import firebase from "firebase";
+import "firebase/firestore";
 import {
 	CollectionQuery,
 	CollectionSource,
@@ -97,16 +98,16 @@ class Collection<T extends ICollectionDocument = Document>
 	implements ICollection<T>, IEnhancedObservableDelegate, IHasContext {
 	private sourceInput: CollectionSource;
 	private sourceCache: CollectionSource;
-	private sourceCacheRef: firestore.CollectionReference;
+	private sourceCacheRef: firebase.firestore.CollectionReference;
 	private refDisposerFn: () => void;
 	private refObservable: IObservableValue<
-		firestore.CollectionReference | undefined
+		firebase.firestore.CollectionReference | undefined
 	>;
 	private queryInput?: CollectionQuery;
 	private queryRefObservable: IObservableValue<
-		firestore.Query | null | undefined
+		firebase.firestore.Query | null | undefined
 	>;
-	private onSnapshotRefCache?: firestore.Query;
+	private onSnapshotRefCache?: firebase.firestore.Query;
 	private modeObservable: IObservableValue<Mode>;
 	private isLoadingObservable: IObservableValue<boolean>;
 	private isLoadedObservable: IObservableValue<boolean>;
@@ -181,7 +182,7 @@ class Collection<T extends ICollectionDocument = Document>
 
 	/**
 	 * Array of all the documents that have been fetched
-	 * from firestore.
+	 * from firebase.firestore.
 	 *
 	 * @type {Array}
 	 *
@@ -213,7 +214,7 @@ class Collection<T extends ICollectionDocument = Document>
 	 * Alternatively, you can also use `path` to change the
 	 * reference in more a readable way.
 	 *
-	 * @type {firestore.CollectionReference | Function}
+	 * @type {firebase.firestore.CollectionReference | Function}
 	 *
 	 * @example
 	 * const col = new Collection(firebase.firestore().collection('albums/splinter/tracks'));
@@ -221,14 +222,14 @@ class Collection<T extends ICollectionDocument = Document>
 	 * // Switch to another collection
 	 * col.ref = firebase.firestore().collection('albums/americana/tracks');
 	 */
-	public get ref(): firestore.CollectionReference | undefined {
+	public get ref(): firebase.firestore.CollectionReference | undefined {
 		let ref = this.refObservable.get();
 		if (!this.refDisposerFn) {
 			ref = this._resolveRef(this.sourceInput);
 		}
 		return ref;
 	}
-	public set ref(ref: firestore.CollectionReference | undefined) {
+	public set ref(ref: firebase.firestore.CollectionReference | undefined) {
 		this.source = ref;
 	}
 
@@ -306,7 +307,7 @@ class Collection<T extends ICollectionDocument = Document>
 	 * the collection reference is used.
 	 *
 	 * The query can be a Function of the form
-	 * `(firestore.CollectionReference) => firestore.Query | null | undefined`.
+	 * `(firebase.firestore.CollectionReference) => firebase.firestore.Query | null | undefined`.
 	 * Where returning `null` will result in an empty collection,
 	 * and returning `undefined` will revert to using the collection
 	 * reference (the entire collection).
@@ -317,7 +318,7 @@ class Collection<T extends ICollectionDocument = Document>
 	 * query can be set to a direct Firestore `Query` object but this
 	 * is an uncommon usage.
 	 *
-	 * @type {firestore.Query | Function}
+	 * @type {firebase.firestore.Query | Function}
 	 *
 	 * @example
 	 * const todos = new Collection('todos');
@@ -357,11 +358,11 @@ class Collection<T extends ICollectionDocument = Document>
 
 	/**
 	 * @private
-	 * firestore.Query -> a valid query exists, use that
+	 * firebase.firestore.Query -> a valid query exists, use that
 	 * null -> the query function returned `null` to disable the collection
 	 * undefined -> no query defined, use collection ref instead
 	 */
-	public get queryRef(): firestore.Query | null | undefined {
+	public get queryRef(): firebase.firestore.Query | null | undefined {
 		return this.queryRefObservable.get();
 	}
 
@@ -400,7 +401,7 @@ class Collection<T extends ICollectionDocument = Document>
 	}
 
 	/**
-	 * Fetches new data from firestore. Use this to manually fetch
+	 * Fetches new data from firebase.firestore. Use this to manually fetch
 	 * new data when `mode` is set to 'off'.
 	 *
 	 * @return {Promise}
@@ -739,7 +740,7 @@ class Collection<T extends ICollectionDocument = Document>
 		}
 	}
 
-	protected _resolveRef(source): firestore.CollectionReference {
+	protected _resolveRef(source): firebase.firestore.CollectionReference {
 		if (this.sourceCache === source) {
 			return this.sourceCacheRef;
 		}
@@ -758,9 +759,9 @@ class Collection<T extends ICollectionDocument = Document>
 	}
 
 	protected _resolveQuery(
-		collectionRef: firestore.CollectionReference,
+		collectionRef: firebase.firestore.CollectionReference,
 		query?: CollectionQuery
-	): firestore.Query | null | undefined {
+	): firebase.firestore.Query | null | undefined {
 		let ref: any = query;
 		if (typeof query === "function") {
 			ref = query(collectionRef);
@@ -790,7 +791,7 @@ class Collection<T extends ICollectionDocument = Document>
 	/**
 	 * @private
 	 */
-	protected _onSnapshot(snapshot: firestore.QuerySnapshot): void {
+	protected _onSnapshot(snapshot: firebase.firestore.QuerySnapshot): void {
 		// Firestore sometimes returns multiple snapshots initially.
 		// The first one containing cached results, followed by a second
 		// snapshot which was fetched from the cloud.
@@ -844,27 +845,31 @@ class Collection<T extends ICollectionDocument = Document>
 	/**
 	 * @private
 	 */
-	private _updateFromSnapshot(snapshot?: firestore.QuerySnapshot): void {
+	private _updateFromSnapshot(
+		snapshot?: firebase.firestore.QuerySnapshot
+	): void {
 		const newDocs = [];
 		if (snapshot) {
-			snapshot.docs.forEach((docSnapshot: firestore.DocumentSnapshot) => {
-				let doc = this.docLookup[docSnapshot.id];
-				try {
-					if (doc) {
-						doc.updateFromCollectionSnapshot(docSnapshot);
-					} else {
-						doc = this.createDocument(docSnapshot.ref, {
-							context: this.context,
-							snapshot: docSnapshot
-						});
-						this.docLookup[doc.id] = doc;
+			snapshot.docs.forEach(
+				(docSnapshot: firebase.firestore.DocumentSnapshot) => {
+					let doc = this.docLookup[docSnapshot.id];
+					try {
+						if (doc) {
+							doc.updateFromCollectionSnapshot(docSnapshot);
+						} else {
+							doc = this.createDocument(docSnapshot.ref, {
+								context: this.context,
+								snapshot: docSnapshot
+							});
+							this.docLookup[doc.id] = doc;
+						}
+						doc.addCollectionRef();
+						newDocs.push(doc);
+					} catch (err) {
+						console.error(err.message);
 					}
-					doc.addCollectionRef();
-					newDocs.push(doc);
-				} catch (err) {
-					console.error(err.message);
 				}
-			});
+			);
 		}
 		this.docsObservable.forEach(doc => {
 			if (!doc.releaseCollectionRef()) {
@@ -1000,7 +1005,7 @@ class Collection<T extends ICollectionDocument = Document>
 		if (!ref) {
 			if (this.docsObservable.length) {
 				this._updateFromSnapshot({
-					docChanges: (options?: firestore.SnapshotListenOptions) => {
+					docChanges: (options?: firebase.firestore.SnapshotListenOptions) => {
 						// tslint:disable-next-line
 						options;
 						return [];

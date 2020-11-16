@@ -1,4 +1,5 @@
-import { firestore } from "firebase";
+import firebase from "firebase";
+import "firebase/firestore";
 import {
 	observable,
 	reaction,
@@ -25,7 +26,7 @@ const isEqual = require("lodash.isequal"); //tslint:disable-line
 function resolveRef(
 	value: DocumentSource,
 	hasContext: IHasContext
-): firestore.DocumentReference | undefined {
+): firebase.firestore.DocumentReference | undefined {
 	if (typeof value === "string") {
 		return getFirestore(hasContext).doc(value);
 	} else if (typeof value === "function") {
@@ -48,8 +49,8 @@ const EMPTY_OPTIONS = {};
  * @param {Object} [options] Configuration options
  * @param {String} [options.mode] See `Document.mode` (default: auto)
  * @param {Function} [options.schema] Superstruct schema for data validation
- * @param {firestore.DocumentSnapshot} [options.snapshot] Initial document snapshot
- * @param {firestore.SnapshotOptions} [options.snapshotOptions] Options that configure how data is retrieved from a snapshot
+ * @param {firebase.firestore.DocumentSnapshot} [options.snapshot] Initial document snapshot
+ * @param {firebase.firestore.SnapshotOptions} [options.snapshotOptions] Options that configure how data is retrieved from a snapshot
  * @param {boolean} [options.debug] Enables debug logging
  * @param {String} [options.debugName] Name to use when debug logging is enabled
  */
@@ -59,9 +60,9 @@ class Document<T extends object = object>
 	private sourceDisposerFn: () => void;
 	private refObservable: IObservableValue<any>;
 	private snapshotObservable: IObservableValue<
-		firestore.DocumentSnapshot | undefined
+		firebase.firestore.DocumentSnapshot | undefined
 	>;
-	private snapshotOptions: firestore.SnapshotOptions;
+	private snapshotOptions: firebase.firestore.SnapshotOptions;
 	private docSchema: (data: object) => object;
 	private isVerbose: boolean;
 	private debugInstanceName?: string;
@@ -157,7 +158,7 @@ class Document<T extends object = object>
 	 * Alternatively, you can also use `path` to change the
 	 * reference in more a readable way.
 	 *
-	 * @type {firestore.DocumentReference | Function}
+	 * @type {firebase.firestore.DocumentReference | Function}
 	 *
 	 * @example
 	 * const doc = new Document('albums/splinter');
@@ -168,10 +169,10 @@ class Document<T extends object = object>
 	 * // Switch to another document
 	 * doc.ref = firebase.firestore().doc('albums/americana');
 	 */
-	public get ref(): firestore.DocumentReference | undefined {
+	public get ref(): firebase.firestore.DocumentReference | undefined {
 		return this.refObservable.get();
 	}
-	public set ref(ref: firestore.DocumentReference | undefined) {
+	public set ref(ref: firebase.firestore.DocumentReference | undefined) {
 		this.source = ref;
 	}
 
@@ -287,9 +288,9 @@ class Document<T extends object = object>
 	/**
 	 * Underlying firestore snapshot.
 	 *
-	 * @type {firestore.DocumentSnapshot}
+	 * @type {firebase.firestore.DocumentSnapshot}
 	 */
-	public get snapshot(): firestore.DocumentSnapshot | undefined {
+	public get snapshot(): firebase.firestore.DocumentSnapshot | undefined {
 		return this.snapshotObservable.get();
 	}
 
@@ -364,7 +365,7 @@ class Document<T extends object = object>
 	}
 
 	/**
-	 * Deletes the document in Firestore.
+	 * Deletes the document in firebase.firestore.
 	 *
 	 * Returns a promise that resolves once the document has been
 	 * successfully deleted from the backend (Note that it won't
@@ -377,7 +378,7 @@ class Document<T extends object = object>
 	}
 
 	/**
-	 * Fetches new data from firestore. Use this to manually fetch
+	 * Fetches new data from firebase.firestore. Use this to manually fetch
 	 * new data when `mode` is set to 'off'.
 	 *
 	 * @return {Promise}
@@ -580,7 +581,7 @@ class Document<T extends object = object>
 		return --this.collectionRefCount;
 	}
 	public updateFromCollectionSnapshot(
-		snapshot: firestore.DocumentSnapshot
+		snapshot: firebase.firestore.DocumentSnapshot
 	): void {
 		return this._updateFromSnapshot(snapshot);
 	}
@@ -588,7 +589,9 @@ class Document<T extends object = object>
 	/**
 	 * @private
 	 */
-	public _updateFromSnapshot(snapshot?: firestore.DocumentSnapshot): void {
+	public _updateFromSnapshot(
+		snapshot?: firebase.firestore.DocumentSnapshot
+	): void {
 		let data: any = snapshot ? snapshot.data(this.snapshotOptions) : undefined;
 		if (data) {
 			data = this._validateSchema(data);
@@ -622,7 +625,7 @@ class Document<T extends object = object>
 	/**
 	 * @private
 	 */
-	protected _onSnapshot(snapshot: firestore.DocumentSnapshot) {
+	protected _onSnapshot(snapshot: firebase.firestore.DocumentSnapshot) {
 		runInAction(() => {
 			if (this.isVerbose) {
 				console.debug(`${this.debugName} - onSnapshot`);
@@ -714,7 +717,7 @@ class Document<T extends object = object>
 			this.sourceDisposerFn = reaction(
 				() =>
 					(this.sourceInput as () =>
-						| firestore.DocumentReference
+						| firebase.firestore.DocumentReference
 						| string
 						| undefined)(),
 				value => {

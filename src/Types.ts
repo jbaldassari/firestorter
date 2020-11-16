@@ -1,13 +1,14 @@
-import { firestore } from "firebase";
+import firebase from "firebase";
+import "firebase/firestore";
 import { IContext } from "./init";
 
 /**
  * Document Source.
  */
 export type DocumentSource =
-	| firestore.DocumentReference
+	| firebase.firestore.DocumentReference
 	| string
-	| (() => firestore.DocumentReference | string | undefined)
+	| (() => firebase.firestore.DocumentReference | string | undefined)
 	| undefined;
 
 /**
@@ -15,8 +16,8 @@ export type DocumentSource =
  */
 export interface IDocumentOptions {
 	schema?: any;
-	snapshot?: firestore.DocumentSnapshot;
-	snapshotOptions?: firestore.SnapshotOptions;
+	snapshot?: firebase.firestore.DocumentSnapshot;
+	snapshotOptions?: firebase.firestore.SnapshotOptions;
 	mode?: Mode;
 	debug?: boolean;
 	debugName?: string;
@@ -42,16 +43,18 @@ export interface ICollection<T> {
  * Collection-source.
  */
 export type CollectionSource =
-	| firestore.CollectionReference
+	| firebase.firestore.CollectionReference
 	| string
-	| (() => firestore.CollectionReference | string | undefined);
+	| (() => firebase.firestore.CollectionReference | string | undefined);
 
 /**
  * Collection-query.
  */
 export type CollectionQuery =
-	| ((ref: firestore.CollectionReference) => firestore.Query | null | undefined)
-	| firestore.Query;
+	| ((
+			ref: firebase.firestore.CollectionReference
+	  ) => firebase.firestore.Query | null | undefined)
+	| firebase.firestore.Query;
 
 /**
  * Collection options.
@@ -74,7 +77,9 @@ export interface ICollectionOptions<T> {
 export interface ICollectionDocument extends IDocument {
 	addCollectionRef(): number;
 	releaseCollectionRef(): number;
-	updateFromCollectionSnapshot(snapshot: firestore.DocumentSnapshot): void;
+	updateFromCollectionSnapshot(
+		snapshot: firebase.firestore.DocumentSnapshot
+	): void;
 }
 
 /**
